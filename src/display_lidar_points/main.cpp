@@ -35,6 +35,7 @@
 #include <sensor_msgs/PointCloud.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/point_cloud2_iterator.h>
+#include <sensor_msgs/point_cloud_conversion.h>
 
 
 #define BUFFER_POINTS                   (32*1024) // must be 2^n
@@ -156,7 +157,9 @@ static uint32_t PublishPointcloudData(PointCloudQueue *queue, uint32_t num) {
     //cloud.channels[0].values[i] = 255;
   }
 
-  cloud_pub.publish(cloud);
+  sensor_msgs::PointCloud2 cloud2;
+  sensor_msgs::convertPointCloudToPointCloud2(cloud, cloud2);
+  cloud_pub.publish(cloud2);
 }
 
 static void PointCloudConvert(LivoxPoint *p_dpoint, LivoxRawPoint *p_raw_point) {
@@ -348,7 +351,7 @@ int main(int argc, char **argv) {
   /* ros related */
   ros::init(argc, argv, "point_cloud_publisher");
   ros::NodeHandle point_cloud_node;
-  cloud_pub = point_cloud_node.advertise<sensor_msgs::PointCloud>("cloud", POINTS_PER_FRAME);
+  cloud_pub = point_cloud_node.advertise<sensor_msgs::PointCloud2>("cloud", POINTS_PER_FRAME);
 
   ros::Time::init();
   ros::Rate r(500); // 500 hz
